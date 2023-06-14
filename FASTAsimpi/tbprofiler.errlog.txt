@@ -1,0 +1,33 @@
+# tb-profiler error report
+
+* OS: linux
+* Program version: 4.4.2
+* Database version: c2fb9a2
+* Program call:
+```
+{'read1': None, 'read2': None, 'bam': None, 'fasta': 'GCA_001317865.1_5227_8_2_genomic.fasta', 'vcf': None, 'platform': 'illumina', 'db': 'tbdb', 'external_db': None, 'prefix': 'tbprofiler', 'csv': False, 'txt': False, 'pdf': False, 'docx': None, 'output_template': None, 'add_columns': None, 'add_mutation_metadata': False, 'dir': '.', 'mapper': 'bwa', 'caller': 'freebayes', 'calling_params': None, 'kmer_counter': 'kmc', 'min_depth': 10, 'af': 0.1, 'reporting_af': 0.1, 'coverage_fraction_threshold': 0, 'missing_cov_threshold': 10, 'suspect': False, 'spoligotype': False, 'call_whole_genome': False, 'snp_dist': None, 'no_trim': False, 'no_flagstat': False, 'no_clip': True, 'no_delly': False, 'no_lineage': False, 'add_variant_annotations': False, 'threads': 1, 'ram': 2, 'verbose': 0, 'delly_vcf': None, 'no_clean': False, 'temp': '.', 'func': <function main_profile at 0x7f4c7747b040>, 'software_name': 'tbprofiler', 'tmp_prefix': '7478e3c9-8798-4ed9-af90-5804ccfcdae7', 'files_prefix': './7478e3c9-8798-4ed9-af90-5804ccfcdae7', 'conf': {'snpEff_db': 'Mycobacterium_tuberculosis_h37rv', 'drugs': ['rifampicin', 'isoniazid', 'ethambutol', 'pyrazinamide', 'streptomycin', 'fluoroquinolones', 'moxifloxacin', 'ofloxacin', 'levofloxacin', 'ciprofloxacin', 'aminoglycosides', 'amikacin', 'capreomycin', 'kanamycin', 'cycloserine', 'ethionamide', 'clofazimine', 'para-aminosalicylic_acid', 'delamanid', 'bedaquiline', 'linezolid'], 'amplicon': False, 'files': {'ref': 'tbdb.fasta', 'gff': 'tbdb.gff', 'bed': 'tbdb.bed', 'version': 'tbdb.version.json', 'json_db': 'tbdb.dr.json', 'variables': 'tbdb.variables.json', 'spoligotype_spacers': 'tbdb.spoligotype_spacers.txt', 'spoligotype_annotations': 'tbdb.spoligotype_list.csv', 'bedmask': 'tbdb.mask.bed', 'barcode': 'tbdb.barcode.bed'}, 'ref': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.fasta', 'gff': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.gff', 'bed': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.bed', 'version': {'name': 'tbdb', 'commit': 'c2fb9a2', 'Author': 'jodyphelan <jody.phelan@lshtm.ac.uk>', 'Date': 'Tue Oct 4 11:40:15 2022 +0100'}, 'variables': {'snpEff_db': 'Mycobacterium_tuberculosis_h37rv', 'drugs': ['rifampicin', 'isoniazid', 'ethambutol', 'pyrazinamide', 'streptomycin', 'fluoroquinolones', 'moxifloxacin', 'ofloxacin', 'levofloxacin', 'ciprofloxacin', 'aminoglycosides', 'amikacin', 'capreomycin', 'kanamycin', 'cycloserine', 'ethionamide', 'clofazimine', 'para-aminosalicylic_acid', 'delamanid', 'bedaquiline', 'linezolid'], 'amplicon': False, 'files': {'ref': 'tbdb.fasta', 'gff': 'tbdb.gff', 'bed': 'tbdb.bed', 'version': 'tbdb.version.json', 'json_db': 'tbdb.dr.json', 'variables': 'tbdb.variables.json', 'spoligotype_spacers': 'tbdb.spoligotype_spacers.txt', 'spoligotype_annotations': 'tbdb.spoligotype_list.csv', 'bedmask': 'tbdb.mask.bed', 'barcode': 'tbdb.barcode.bed'}}, 'spoligotype_spacers': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.spoligotype_spacers.txt', 'spoligotype_annotations': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.spoligotype_list.csv', 'bedmask': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.mask.bed', 'barcode': '/home/linuxipg/miniconda3/envs/tb-profiler/share/tbprofiler//tbdb.barcode.bed'}, 'run_delly': True}
+```
+## Traceback:
+```
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/bin/tb-profiler", line 693, in <module>
+    args.func(args)
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/bin/tb-profiler", line 152, in main_profile
+    results.update(pp.run_profiler(args))
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/site-packages/pathogenprofiler/cli.py", line 48, in run_profiler
+    results = fasta_profiler(conf=args.conf,prefix=args.files_prefix,filename=args.fasta)
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/site-packages/pathogenprofiler/profiler.py", line 98, in fasta_profiler
+    vcf_obj = vcf_obj.run_snpeff(conf["snpEff_db"],conf["ref"],conf["gff"],rename_chroms= conf.get("chromosome_conversion",None))
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/site-packages/pathogenprofiler/vcf.py", line 93, in run_snpeff
+    run_cmd("bcftools view -c 1 -a %(filename)s | bcftools norm -m - | bcftools view -v indels | %(rename_cmd)s snpEff ann %(snpeff_data_dir_opt)s -noLog -noStats %(db)s - %(re_rename_cmd)s | bcftools sort -Oz -o %(tmp_file2)s && bcftools index %(tmp_file2)s" % vars(self))
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/site-packages/pathogenprofiler/utils.py", line 401, in run_cmd
+    stdout,stderr = p.communicate()
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/subprocess.py", line 1134, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/subprocess.py", line 1979, in _communicate
+    ready = selector.select(timeout)
+  File "/home/linuxipg/miniconda3/envs/tb-profiler/lib/python3.9/selectors.py", line 416, in select
+    fd_event_list = self._selector.poll(timeout)
+```
+## Value:
+```
+```
