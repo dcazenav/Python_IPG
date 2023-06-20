@@ -177,7 +177,8 @@ print(df)
 fin = time.perf_counter()
 print(f" Le script à tourné durant {fin - debut:0.4f} secondes")
 print(df2)
-print(spol_mirureader)
+print(spol_mirureader[0])
+print(spol_mirureader[1])
 
 for x in range(len(spol_mirureader)):
     for y in range(len(spol_mirureader[x])):
@@ -205,18 +206,20 @@ for x in range(len(spol_mirureader)):
         #     print(spol_mirureader[x][y].dtype)
         #     print(spol_mirureader[x][y].replace('s', ''))
 
-print(type(spol_mirureader))
+print(spol_mirureader[2])
+new_miru = []
+for i in range(len(spol_mirureader)):
+    new_miru.append(''.join([str(v) for v in spol_mirureader[i]]))
 
+print(new_miru[0])
 values = ''.join([str(v) for v in spol_mirureader])
 values2 = values.replace("'", '')
 values2 = values2.replace(" ", "")
-df["new_col"] = pd.Series(values2)
+df["SpoligoType(mirureader)"] = pd.Series(new_miru)
 print(type(values2))
 
-testy = values2.split("]")
-print("testy", testy)
 # print("value:", values)
 # print("value2:", values2)
 
-# df.insert(loc=4, column='SpoligoType(mirureader)', value=values2.strip())
+# df.insert(loc=4, column='SpoligoType(mirureader)', value=new_miru)
 print(df)
