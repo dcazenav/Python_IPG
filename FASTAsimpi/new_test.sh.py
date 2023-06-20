@@ -12,6 +12,23 @@ import time
 
 pd.options.mode.chained_assignment = None
 # parser.add_argument('-i', '--in', nargs='+', default=[])
+if not os.path.exists("sitvit_geno/"):
+    os.makedirs("sitvit_geno/")
+else:
+    for filename in os.listdir("sitvit_geno/"):
+        os.remove("sitvit_geno/" + filename)
+
+if os.path.exists("./sitvit_geno_final.tsv"):
+    os.remove("./sitvit_geno_final.tsv")
+    g = open("./sitvit_geno_final.tsv", 'w')
+    g.write('')
+    g.write('FilePath\tFlags\tRunName\tSpoligoType(MiruHero)\tMiruType\tLineage(MiruHero)\n')
+    g.close()
+else:
+    g = open("./sitvit_geno_final.tsv", 'w')
+    g.write('')
+    g.write('FilePath\tFlags\tRunName\tSpoligoType(MiruHero)\tMiruType\tLineage(MiruHero)\n')
+    g.close()
 
 bashfile = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 bashfile = '/tmp/' + bashfile + '.sh'
@@ -33,6 +50,7 @@ res_sum_tsv = []
 res_fasta = []
 lineages = []
 resistance = []
+spol_mirureader = []
 
 debut = time.perf_counter()
 # Iterate directory
@@ -46,9 +64,12 @@ f = open(bashfile, 'w')
 s = """
 for i in *.fasta;
     do
-        ~/miniconda3/pkgs/miru-hero-0.10.0-pyh5e36f6f_0/python-scripts/MiruHero -m24 $i -o ./sitvit_geno;
+        MiruHero -m24 $i -o ./sitvit_geno;
 done
 """
+
+# ~/miniconda3/pkgs/miru-hero-0.10.0-pyh5e36f6f_0/python-scripts/MiruHero -m24 $i -o ./sitvit_geno;
+
 
 # launch mirureader
 # s = os.popen("cat ~/Documents/simpyTB/fasta_files/FASTAsimpi/sitvit_geno/GCA*.summary.tsv").read()
@@ -68,10 +89,7 @@ for file in os.listdir(dir_path_sum_tsv):
 print(res_sum_tsv)
 
 # g = open("./sitvit_geno_final.tsv", 'r+')
-g = open("./sitvit_geno_final.tsv", 'w')
-g.write('')
-g.write('FilePath\tFlags\tRunName\tSpoligoType(MiruHero)\tMiruType\tLineage\n')
-g.close()
+
 
 for i in range(len(res_sum_tsv)):
     with open("./sitvit_geno/" + res_sum_tsv[i] + "", "r+") as myfile:
@@ -86,7 +104,7 @@ for i in range(len(res_sum_tsv)):
 pd.set_option('display.max_columns', None)
 
 df = pd.read_table('sitvit_geno_final.tsv', index_col=False, dtype={'SpoligoType(MiruHero)': 'string'},
-                   usecols=['FilePath', 'RunName', 'SpoligoType(MiruHero)', 'MiruType', 'Lineage'])
+                   usecols=['FilePath', 'RunName', 'SpoligoType(MiruHero)', 'MiruType', 'Lineage(MiruHero)'])
 
 if os.path.exists("spo_gca.out"):
     os.remove("spo_gca.out")
@@ -99,14 +117,16 @@ g.close()
 for i in range(len(df)):
     print(res_fasta[i])
     # check only text files
-    os.system('python3 ../../MIRUReader/MIRUReader.py -p mirus -r ' + df.loc[i, 'FilePath'] + '> miru.txt')
+    os.system('python3 MIRUReader/MIRUReader.py -p mirus -r ' + df.loc[i, 'FilePath'] + '> miru.txt')
     os.system('tb-profiler profile -f' + df.loc[i, 'FilePath'] + '')
-    os.system('python3 ../../SpoTyping/SpoTyping-v3.0-commandLine/SpoTyping.py --noQuery --seq ' + df.loc[
+    os.system('python3 SpoTyping/SpoTyping-v3.0-commandLine/SpoTyping.py --noQuery --seq ' + df.loc[
         i, 'FilePath'] + ' -o spo_gca.out')
 
     df3 = pd.read_table('miru.txt', index_col=False)
 
-    print(df3.iloc[0].to_numpy())
+    print(df3)
+
+    spol_mirureader.append(df3.iloc[0][1:].to_numpy())
 
     # f = open('./results/tbprofiler.results.json')
     # data = json.load(f)
@@ -141,12 +161,8 @@ for i in range(len(df)):
 df2 = pd.read_table('spo_gca.out', index_col=False, dtype={'SpoligoType(Spotyping)': 'string'}, )
 # pd.merge(df, df2[["SpoligoType(Spotyping)"]])
 df.insert(loc=3, column='SpoligoType(Spotyping)', value=df2["SpoligoType(Spotyping)"])
-print(res_fasta)
-print(lineages)
-print(resistance)
 df['Lineages'] = lineages
 df['Resistance'] = resistance
-print(df)
 
 for i in range(len(df)):
     mylist = df['MiruType'][i]
@@ -156,9 +172,51 @@ for i in range(len(df)):
     s = ''.join(mylist)
     df['MiruType'][i] = s
 
-
 print(df)
 
 fin = time.perf_counter()
 print(f" Le script à tourné durant {fin - debut:0.4f} secondes")
 print(df2)
+print(spol_mirureader)
+
+for x in range(len(spol_mirureader)):
+    for y in range(len(spol_mirureader[x])):
+        if spol_mirureader[x][y] == 'ND':
+            spol_mirureader[x][y] = '-'
+        elif spol_mirureader[x][y] == 10:
+            spol_mirureader[x][y] = 'A'
+        elif spol_mirureader[x][y] == 11:
+            spol_mirureader[x][y] = 'B'
+        elif spol_mirureader[x][y] == 12:
+            spol_mirureader[x][y] = 'C'
+        elif spol_mirureader[x][y] == 13:
+            spol_mirureader[x][y] = 'D'
+        elif spol_mirureader[x][y] == 14:
+            spol_mirureader[x][y] = 'E'
+        elif spol_mirureader[x][y] == 15:
+            spol_mirureader[x][y] = 'F'
+        elif str(spol_mirureader[x][y]).count('s') > 0:
+            # string.__contains__('s')
+            index = str(spol_mirureader[x][y]).find('s')
+            spol_mirureader[x][y] = spol_mirureader[x][y][:index]
+
+        # else:
+        #     print(spol_mirureader[x][y])
+        #     print(spol_mirureader[x][y].dtype)
+        #     print(spol_mirureader[x][y].replace('s', ''))
+
+print(type(spol_mirureader))
+
+values = ''.join([str(v) for v in spol_mirureader])
+values2 = values.replace("'", '')
+values2 = values2.replace(" ", "")
+df["new_col"] = pd.Series(values2)
+print(type(values2))
+
+testy = values2.split("]")
+print("testy", testy)
+# print("value:", values)
+# print("value2:", values2)
+
+# df.insert(loc=4, column='SpoligoType(mirureader)', value=values2.strip())
+print(df)
