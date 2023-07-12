@@ -74,24 +74,17 @@ spol_mirureader = []
 debut = time.perf_counter()
 # Iterate directory
 for f in args.input:
-    #for line in f:
-        #if f.endswith(('.fasta', '.fna')):
     res_fasta.append(f)
 print(res_fasta)
 
-
 for i in res_fasta:
     subprocess.call(['MiruHero', '-m24', i, "-o", "./sitvit_geno"])
-    # os.system("MiruHero -m24" + res_fasta[i] + "-o ./sitvit_geno")
 
 for file in os.listdir(dir_path_sum_tsv):
     # check only text files
     if file.endswith('.summary.tsv'):
         res_sum_tsv.append(file)
 print(res_sum_tsv)
-
-# g = open("./sitvit_geno_final.tsv", 'r+')
-
 
 for i in range(len(res_sum_tsv)):
     with open("./sitvit_geno/" + res_sum_tsv[i] + "", "r+") as myfile:
@@ -126,13 +119,7 @@ for i in range(len(df)):
 
     df3 = pd.read_table('miru.txt', index_col=False)
 
-    print(df3)
-
     spol_mirureader.append(df3.iloc[0][1:].to_numpy())
-
-    # f = open('./results/tbprofiler.results.json')
-    # data = json.load(f)
-    # time.sleep(2)
 
     with open("./results/tbprofiler.results.json", "r") as f:
         data = json.load(f)
@@ -161,7 +148,6 @@ for i in range(len(df)):
     os.remove('./results/tbprofiler.results.json')
 
 df2 = pd.read_table('spo_gca.out', index_col=False, dtype={'SpoligoType(Spotyping)': 'string'}, )
-# pd.merge(df, df2[["SpoligoType(Spotyping)"]])
 df.insert(loc=3, column='SpoligoType(Spotyping)', value=df2["SpoligoType(Spotyping)"])
 df['Lineages'] = lineages
 df['Resistance'] = resistance
@@ -173,12 +159,6 @@ for i in range(len(df)):
     mylist = [mylist[i] for i in myorder]
     s = ''.join(mylist)
     df['MiruType'][i] = s
-
-print(df)
-
-fin = time.perf_counter()
-print(f" Le script à tourné durant {fin - debut:0.4f} secondes")
-print(df2)
 
 for x in range(len(spol_mirureader)):
     for y in range(len(spol_mirureader[x])):
@@ -197,14 +177,8 @@ for x in range(len(spol_mirureader)):
         elif spol_mirureader[x][y] == 15:
             spol_mirureader[x][y] = 'F'
         elif str(spol_mirureader[x][y]).count('s') > 0:
-            # string.__contains__('s')
             index = str(spol_mirureader[x][y]).find('s')
             spol_mirureader[x][y] = spol_mirureader[x][y][:index]
-
-        # else:
-        #     print(spol_mirureader[x][y])
-        #     print(spol_mirureader[x][y].dtype)
-        #     print(spol_mirureader[x][y].replace('s', ''))
 
 new_miru = []
 for i in range(len(spol_mirureader)):
@@ -219,9 +193,9 @@ df.rename(columns={'MiruType': 'MiruType(MiruHero)', 'Resistance': 'Resistance(t
 df = df[["FilePath", "RunName", "SpoligoType(MiruHero)", "SpoligoType(Spotyping)", "MiruType(MiruHero)",
          "MiruType(mirureader)", "Lineage(MiruHero)", "Lineages(tb-profiler)", "Resistance(tb-profiler)"
          ]]
-# print("value:", values)
-# print("value2:", values2)
 
-# df.insert(loc=4, column='SpoligoType(mirureader)', value=new_miru)
 print(df)
-df.to_csv(output_file, index=False)
+df.to_csv("" + output_file + ".csv", index=False)
+fin = time.perf_counter()
+print(f" The runtime is {fin - debut:0.4f} seconds")
+subprocess.call(['rm', '-rf', "*.fasta.*"])
