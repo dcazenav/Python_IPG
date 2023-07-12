@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mamba create -n tb-profiler -c conda-forge -c bioconda docxtpl tb-profiler=4.4.2
-
+conda install -c bioconda miru-hero 
 conda install -c bioconda tb-profiler
 conda activate tb-profiler
 
