@@ -117,9 +117,9 @@ g.close()
 for i in range(len(df)):
     print(res_fasta[i])
     # check only text files
-    os.system('python3 MIRUReader/MIRUReader.py -p mirus -r ' + df.loc[i, 'FilePath'] + '> miru.txt')
+    os.system('python3 ../../MIRUReader/MIRUReader.py -p mirus -r ' + df.loc[i, 'FilePath'] + '> miru.txt')
     os.system('tb-profiler profile -f' + df.loc[i, 'FilePath'] + '')
-    os.system('python3 SpoTyping/SpoTyping-v3.0-commandLine/SpoTyping.py --noQuery --seq ' + df.loc[
+    os.system('python3 ../../SpoTyping/SpoTyping-v3.0-commandLine/SpoTyping.py --noQuery --seq ' + df.loc[
         i, 'FilePath'] + ' -o spo_gca.out')
 
     df3 = pd.read_table('miru.txt', index_col=False)
@@ -143,17 +143,17 @@ for i in range(len(df)):
         if len(data['dr_variants']) == 0:
             resistance.append('ND')
 
-        elif len(data['dr_variants']) > 0 and data['drtype'] == 'Sensitive':
-            resistance.append("" + data['dr_variants'][0]['annotation'][0]['drug'] + "(S)")
+        elif len(data['dr_variants']) > 0 and data['dr_variants'][0]['drugs'][0]['confers'] == 'sensitive':
+            resistance.append("" + data['dr_variants'][0]['drugs'][0]['drug'] + "(S)")
 
-        elif len(data['dr_variants']) > 0 and data['drtype'] == 'Resistant':
-            resistance.append("" + data['dr_variants'][0]['annotation'][0]['drug'] + "(R)")
+        elif len(data['dr_variants']) > 0 and data['dr_variants'][0]['drugs'][0]['confers'] == 'resistance':
+            resistance.append("" + data['dr_variants'][0]['drugs'][0]['drug'] + "(R)")
 
-        elif len(data['dr_variants']) > 0 and data['drtype'] == 'Other':
-            resistance.append("" + data['dr_variants'][0]['annotation'][0]['drug'] + "(O)")
+        elif len(data['dr_variants']) > 0 and data['dr_variants'][0]['drugs'][0]['confers'] == 'other':
+            resistance.append("" + data['dr_variants'][0]['drugs'][0]['drug'] + "(O)")
 
         elif len(data['dr_variants']) > 0 and len(data['drtype']) == 0:
-            resistance.append(data['dr_variants'][0]['annotation'][0]['drug'])
+            resistance.append(data['dr_variants'][0]['drugs'][0]['drug'])
 
         f.close()
     os.remove('./results/tbprofiler.results.json')
@@ -215,11 +215,15 @@ print(new_miru[0])
 values = ''.join([str(v) for v in spol_mirureader])
 values2 = values.replace("'", '')
 values2 = values2.replace(" ", "")
-df["SpoligoType(mirureader)"] = pd.Series(new_miru)
+df["MiruType(mirureader)"] = pd.Series(new_miru)
+df.rename(columns={'MiruType': 'MiruType(MiruHero)', 'Resistance': 'Resistance(tb-profiler)',
+                   'Lineages': 'Lineages(tb-profiler)'}, inplace=True)
+df = df[["FilePath","RunName","SpoligoType(MiruHero)","SpoligoType(Spotyping)","MiruType(MiruHero)","MiruType(mirureader)","Lineage(MiruHero)","Lineages(tb-profiler)","Resistance(tb-profiler)"
+]]
 print(type(values2))
-
 # print("value:", values)
 # print("value2:", values2)
 
 # df.insert(loc=4, column='SpoligoType(mirureader)', value=new_miru)
 print(df)
+df.to_csv('outsimpi.csv', index=False)
